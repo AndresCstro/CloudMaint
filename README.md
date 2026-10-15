@@ -4,12 +4,6 @@
 
 Proyecto desarrollado para la asignatura **Cloud Computing: Fundamentos e Infraestructuras** del Máster Universitario en Ingeniería Informática de la Universidad de Granada.
 
-## Documentación
-
-La memoria completa correspondiente al Hito I se encuentra disponible en:
-
-[Memoria Hito I - CloudMaint](docs/Hito1.pdf)
-
 ---
 
 ## 1. Descripción del dominio
@@ -37,7 +31,6 @@ SLA
 
 El **SLA (Service Level Agreement)** establece el tiempo máximo previsto para resolver la incidencia.
 
-La descripción detallada de los criterios de cálculo se encuentra en la memoria del Hito I.
 
 ---
 
@@ -145,7 +138,24 @@ Se utilizará **Redis** para almacenar temporalmente información de activos con
 | `GET` | `/api/assets/{id}` | Obtener un activo |
 | `PUT` | `/api/assets/{id}` | Modificar un activo |
 
-Ejemplo:
+#### Crear un activo
+
+```http
+POST /api/assets
+```
+
+Payload:
+
+```json
+{
+  "name": "Bomba PCI Nave A",
+  "type": "FIRE_PROTECTION",
+  "location": "Nave A",
+  "criticality": "CRITICAL"
+}
+```
+
+Respuesta:
 
 ```json
 {
@@ -251,7 +261,7 @@ El proveedor concreto se determinará en posteriores hitos.
 
 **Impacto económico:** factura los recursos utilizados, como procesamiento, almacenamiento o transferencia de datos.
 
-### Cloud Broker
+### Cloud Broker (Intermediario)
 
 Intermediario que puede facilitar la contratación, integración o gestión de servicios de diferentes proveedores cloud.
 
@@ -259,13 +269,13 @@ CloudMaint no necesita obligatoriamente un broker en su primera versión.
 
 **Impacto económico:** puede introducir un coste adicional, aunque también puede facilitar la optimización de recursos y proveedores.
 
-### Cloud Auditor
+### Cloud Auditor 
 
 Entidad responsable de evaluar de forma independiente aspectos relacionados con seguridad, cumplimiento, rendimiento y configuración.
 
 **Impacto económico:** las auditorías introducen un coste, pero reducen riesgos técnicos, económicos y regulatorios.
 
-### Cloud Carrier
+### Cloud Carrier (Operador)
 
 Proveedor responsable de proporcionar la conectividad entre el consumidor y los servicios desplegados en la nube.
 
@@ -348,8 +358,6 @@ cloudmaint/
 ├── asset-service/
 ├── incident-service/
 │
-├── docs/
-│   └── Hito1.pdf
 │
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
