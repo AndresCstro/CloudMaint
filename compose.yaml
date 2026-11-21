@@ -1,0 +1,128 @@
+services:
+
+  # Base de datos de activos
+  asset-db:
+    image: postgres:17-alpine
+
+    environment:
+      POSTGRES_DB: ${ASSET_DB_NAME}
+      POSTGRES_USER: ${ASSET_DB_USER}
+      POSTGRES_PASSWORD: ${ASSET_DB_PASSWORD}
+
+    volumes:
+      - asset-db-data:/var/lib/postgresql/data
+
+    networks:
+      - asset-net
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ASSET_DB_USER} -d ${ASSET_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  # Microservicios de activos
+  asset-service:
+    build:
+      context: ./asset-service
+
+    ports:
+      - "8081:8081"
+
+    environment:
+      ASSET_DB_URL: jdbc:postgresql://asset-db:5432/${ASSET_DB_NAME}
+      ASSET_DB_USER: ${ASSET_DB_USER}
+      ASSET_DB_PASSWORD: ${ASSET_DB_PASSWORD}
+
+    depends_on:
+      asset-db:
+        condition: service_healthy
+
+    networks:
+      - asset-net
+      - service-net
+
+
+  # Base de datos de incidencias
+  incident-db:
+    image: postgres:17-alpine
+
+    environment:
+      POSTGRES_DB: ${INCIDENT_DB_NAME}
+      POSTGRES_USER: ${INCIDENT_DB_USER}
+      POSTGRES_PASSWORD: ${INCIDENT_DB_PASSWORD}
+
+    volumes:
+      - incident-db-data:/var/lib/postgresql/data
+
+    networks:
+      - incident-net
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${INCIDENT_DB_USER} -d ${INCIDENT_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+
+    volumes:
+      - redis-data:/data
+
+    networks:
+      - incident-net
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+
+  # Microservicios de incidencias
+  incident-service:
+    build:
+      context: ./incident-service
+
+    ports:
+      - "8082:8082"
+
+    environment:
+      INCIDENT_DB_URL: jdbc:postgresql://incident-db:5432/${INCIDENT_DB_NAME}
+      INCIDENT_DB_USER: ${INCIDENT_DB_USER}
+      INCIDENT_DB_PASSWORD: ${INCIDENT_DB_PASSWORD}
+
+      ASSET_SERVICE_URL: http://asset-service:8081
+
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+
+    depends_on:
+      incident-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      asset-service:
+        condition: service_started
+
+    networks:
+      - incident-net
+      - service-net
+
+
+# Volúmenes persistentes
+volumes:
+  asset-db-data:
+  incident-db-data:
+  redis-data:
+
+
+# Redes
+networks:
+  asset-net:
+  incident-net:
+  service-net:
