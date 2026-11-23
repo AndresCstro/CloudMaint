@@ -60,14 +60,14 @@ jobs:
         run: >
           docker run --rm -i
           hadolint/hadolint:latest-alpine
-          --ignore DL3059 -
+          hadolint --ignore DL3059 -
           < asset-service/Dockerfile
 
       - name: Hadolint incident-service Dockerfile
         run: >
           docker run --rm -i
           hadolint/hadolint:latest-alpine
-          --ignore DL3059 -
+          hadolint --ignore DL3059 -
           < incident-service/Dockerfile
 
       # Compose syntax
