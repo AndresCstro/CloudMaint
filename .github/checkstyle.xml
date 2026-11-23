@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<module name="Checker">
+
+    <property name="charset" value="UTF-8"/>
+
+    <module name="TreeWalker">
+
+        <!-- Evita imports con * -->
+        <module name="AvoidStarImport"/>
+
+        <!-- Detecta imports no utilizados -->
+        <module name="UnusedImports"/>
+
+        <!-- Detecta sentencias vacías -->
+        <module name="EmptyStatement"/>
+
+    </module>
+
+</module>
