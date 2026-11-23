@@ -26,16 +26,16 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Usuario sin privilegios.
-RUN addgroup -S cloudmaint && \
-    adduser -S cloudmaint -G cloudmaint
+# Usuario sin privilegios. (misma corrección)
+RUN addgroup -S -g 10001 cloudmaint && \
+    adduser -S -u 10001 -G cloudmaint cloudmaint
 
 # Copiamos únicamente el JAR generado.
 COPY --from=build \
     /workspace/target/incident-service-0.0.1-SNAPSHOT.jar \
     app.jar
 
-USER cloudmaint
+USER 10001:10001
 
 EXPOSE 8082
 

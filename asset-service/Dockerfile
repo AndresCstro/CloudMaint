@@ -23,9 +23,9 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Creamos un usuario sin privilegios.
-RUN addgroup -S cloudmaint && \
-    adduser -S cloudmaint -G cloudmaint
+# Usuario no root con UID/GID fijo (sin UID numérico daba fallo)
+RUN addgroup -S -g 10001 cloudmaint && \
+    adduser -S -u 10001 -G cloudmaint cloudmaint
 
 # Copiamos únicamente el JAR generado.
 COPY --from=build \
@@ -33,7 +33,7 @@ COPY --from=build \
     app.jar
 
 # La aplicación se ejecuta como usuario no root.
-USER cloudmaint
+USER 10001:10001
 
 EXPOSE 8081
 
