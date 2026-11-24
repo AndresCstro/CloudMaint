@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudMaint</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>CloudMaint</h1>
+        <p>Gestión Cloud Native de mantenimiento industrial</p>
+    </div>
+    <span class="cloud-badge">Cloud Native</span>
+</header>
+
+<main>
+
+    <section class="stats">
+        <div class="stat-card">
+            <span>Activos</span>
+            <strong id="assetCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Incidencias</span>
+            <strong id="incidentCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Abiertas</span>
+            <strong id="openCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>SLA incumplidos</span>
+            <strong id="breachedCount">0</strong>
+        </div>
+    </section>
+
+
+    <section class="grid">
+
+        <!-- ACTIVOS -->
+        <div class="panel">
+
+            <div class="panel-header">
+                <h2>Activos técnicos</h2>
+                <button onclick="toggleAssetForm()">+ Nuevo activo</button>
+            </div>
+
+            <form id="assetForm" class="form hidden">
+
+                <input
+                    id="assetName"
+                    type="text"
+                    placeholder="Nombre del activo"
+                    required
+                >
+
+                <select id="assetType" required>
+                    <option value="">Tipo de activo</option>
+                    <option value="ELECTRICAL">Eléctrico</option>
+                    <option value="HVAC">Climatización</option>
+                    <option value="FIRE_PROTECTION">Protección contra incendios</option>
+                    <option value="PHOTOVOLTAIC">Fotovoltaico</option>
+                    <option value="GAS">Gas</option>
+                    <option value="PUMPING">Bombeo</option>
+                    <option value="INDUSTRIAL">Industrial</option>
+                    <option value="OTHER">Otro</option>
+                </select>
+
+                <input
+                    id="assetLocation"
+                    type="text"
+                    placeholder="Ubicación"
+                    required
+                >
+
+                <select id="assetCriticality" required>
+                    <option value="">Criticidad</option>
+                    <option value="LOW">LOW</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="HIGH">HIGH</option>
+                    <option value="CRITICAL">CRITICAL</option>
+                </select>
+
+                <button type="submit">Crear activo</button>
+
+            </form>
+
+            <div id="assets"></div>
+
+        </div>
+
+
+        <!-- INCIDENCIAS -->
+        <div class="panel">
+
+            <div class="panel-header">
+                <h2>Incidencias</h2>
+                <button onclick="toggleIncidentForm()">+ Nueva incidencia</button>
+            </div>
+
+            <form id="incidentForm" class="form hidden">
+
+                <select id="incidentAsset" required>
+                    <option value="">Seleccionar activo</option>
+                </select>
+
+                <textarea
+                    id="incidentDescription"
+                    placeholder="Descripción de la incidencia"
+                    required
+                ></textarea>
+
+                <select id="serviceImpact" required>
+                    <option value="">Impacto en servicio</option>
+                    <option value="NONE">NONE</option>
+                    <option value="DEGRADED">DEGRADED</option>
+                    <option value="TOTAL">TOTAL</option>
+                </select>
+
+                <select id="safetyImpact" required>
+                    <option value="">Impacto en seguridad</option>
+                    <option value="NONE">NONE</option>
+                    <option value="POTENTIAL">POTENTIAL</option>
+                    <option value="IMMEDIATE">IMMEDIATE</option>
+                </select>
+
+                <select id="workaround" required>
+                    <option value="">Solución temporal</option>
+                    <option value="FULL">FULL</option>
+                    <option value="PARTIAL">PARTIAL</option>
+                    <option value="NONE">NONE</option>
+                </select>
+
+                <button type="submit">Registrar incidencia</button>
+
+            </form>
+
+            <div id="incidents"></div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="app.js"></script>
+
+</body>
+</html>
