@@ -19,8 +19,10 @@ import com.cloudmaint.asset.model.AssetStatus;
 import com.cloudmaint.asset.model.AssetType;
 import com.cloudmaint.asset.model.Criticality;
 import com.cloudmaint.asset.repository.AssetRepository;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
+import com.cloudmaint.asset.exception.AssetNotFoundException;
+import com.cloudmaint.asset.dto.UpdateAssetRequest;
 /*
  * Tests unitarios del servicio de gestión de activos.
  *
@@ -97,13 +99,66 @@ class AssetServiceTest {
         when(assetRepository.findById(1L))
                 .thenReturn(Optional.of(asset));
 
-        Optional<Asset> result = assetService.getAssetById(1L);
-        
-        // Comprobar que el activo existe y que su ID es correcto
-        assertTrue(result.isPresent());
-        assertEquals(1L, result.get().getId());
-        
-        // Verificar que la búsqueda se haya delegado al repo
+        Asset result =
+                assetService.getAssetById(1L);
+
+        assertEquals(asset, result);
+
         verify(assetRepository).findById(1L);
     }
+    
+    // Comprobar que se lanza la excepción creada
+    @Test
+    void shouldThrowExceptionWhenAssetDoesNotExist() {
+
+        when(assetRepository.findById(999L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                AssetNotFoundException.class,
+                () -> assetService.getAssetById(999L)
+        );
+
+        verify(assetRepository).findById(999L);
+    }
+    
+    // Comprobar que el DTO modifica los atributos excepto el status y el ID
+    @Test
+    void shouldUpdateAsset() {
+
+        Asset existingAsset = new Asset();
+        existingAsset.setId(1L);
+        existingAsset.setName("Cuadro antiguo");
+        existingAsset.setType(AssetType.ELECTRICAL);
+        existingAsset.setLocation("Sala antigua");
+        existingAsset.setCriticality(Criticality.MEDIUM);
+        existingAsset.setStatus(AssetStatus.ACTIVE);
+
+        UpdateAssetRequest request = new UpdateAssetRequest();
+        request.setName("Cuadro General BT");
+        request.setType(AssetType.ELECTRICAL);
+        request.setLocation("Sala eléctrica principal");
+        request.setCriticality(Criticality.HIGH);
+
+        when(assetRepository.findById(1L))
+                .thenReturn(Optional.of(existingAsset));
+
+        when(assetRepository.save(existingAsset))
+                .thenReturn(existingAsset);
+
+        Asset result =
+                assetService.updateAsset(1L, request);
+
+        assertEquals("Cuadro General BT", result.getName());
+        assertEquals(AssetType.ELECTRICAL, result.getType());
+        assertEquals("Sala eléctrica principal", result.getLocation());
+        assertEquals(Criticality.HIGH, result.getCriticality());
+
+        // El PUT general no debe modificar el estado.
+        assertEquals(AssetStatus.ACTIVE, result.getStatus());
+
+        verify(assetRepository).findById(1L);
+        verify(assetRepository).save(existingAsset);
+    }
+    
 }
