@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Optional;
+import java.time.LocalDateTime;
+
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.cloudmaint.incident.model.SlaStatus;
 import com.cloudmaint.incident.dto.UpdateIncidentStatusRequest;
 import com.cloudmaint.incident.client.AssetClient;
 import com.cloudmaint.incident.dto.AssetResponse;
@@ -189,6 +192,9 @@ class IncidentServiceTest {
         incident.setId(1L);
         incident.setStatus(IncidentStatus.IN_PROGRESS);
 
+        // La incidencia dispone de un SLA válido.
+        incident.setDeadline(LocalDateTime.now().plusHours(1));
+        
         UpdateIncidentStatusRequest request =
                 new UpdateIncidentStatusRequest();
 
@@ -207,5 +213,67 @@ class IncidentServiceTest {
 
         verify(incidentRepository).findById(1L);
         verify(incidentRepository).save(incident);
+    }
+    
+    /*
+     * Comprueba que una incidencia resuelta antes de la fecha límite
+     * se clasifica como cumplida dentro del SLA.
+     */
+    @Test
+    void shouldMarkIncidentWithinSla() {
+
+        Incident incident = new Incident();
+        incident.setId(1L);
+        incident.setStatus(IncidentStatus.IN_PROGRESS);
+
+        // La fecha límite está una hora en el futuro.
+        incident.setDeadline(LocalDateTime.now().plusHours(1));
+
+        UpdateIncidentStatusRequest request =
+                new UpdateIncidentStatusRequest();
+
+        request.setStatus(IncidentStatus.RESOLVED);
+
+        when(incidentRepository.findById(1L))
+                .thenReturn(Optional.of(incident));
+
+        when(incidentRepository.save(incident))
+                .thenReturn(incident);
+
+        Incident result = incidentService.updateStatus(1L, request);
+
+        assertEquals(IncidentStatus.RESOLVED, result.getStatus());
+        assertEquals(SlaStatus.WITHIN_SLA, result.getSlaStatus());
+    }
+    
+    /*
+     * Comprueba que una incidencia resuelta después de la fecha límite
+     * se clasifica como incumplimiento del SLA.
+     */
+    @Test
+    void shouldMarkIncidentAsSlaBreached() {
+
+        Incident incident = new Incident();
+        incident.setId(1L);
+        incident.setStatus(IncidentStatus.IN_PROGRESS);
+
+        // La fecha límite ya venció hace una hora.
+        incident.setDeadline(LocalDateTime.now().minusHours(1));
+
+        UpdateIncidentStatusRequest request =
+                new UpdateIncidentStatusRequest();
+
+        request.setStatus(IncidentStatus.RESOLVED);
+
+        when(incidentRepository.findById(1L))
+                .thenReturn(Optional.of(incident));
+
+        when(incidentRepository.save(incident))
+                .thenReturn(incident);
+
+        Incident result = incidentService.updateStatus(1L, request);
+
+        assertEquals(IncidentStatus.RESOLVED, result.getStatus());
+        assertEquals(SlaStatus.BREACHED, result.getSlaStatus());
     }
 }

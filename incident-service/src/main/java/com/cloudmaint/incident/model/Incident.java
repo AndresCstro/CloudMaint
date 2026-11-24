@@ -122,6 +122,14 @@ public class Incident {
 	public void setResolvedAt(LocalDateTime resolvedAt) {
 	    this.resolvedAt = resolvedAt;
 	}
+	
+	public SlaStatus getSlaStatus() {
+	    return slaStatus;
+	}
+
+	public void setSlaStatus(SlaStatus slaStatus) {
+	    this.slaStatus = slaStatus;
+	}
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -173,6 +181,9 @@ public class Incident {
     
     // Fecha en la que fue resuelta la incidencia
     private LocalDateTime resolvedAt;
+    
+    @Enumerated(EnumType.STRING)
+    private SlaStatus slaStatus;
 
     public Incident() {
     }
