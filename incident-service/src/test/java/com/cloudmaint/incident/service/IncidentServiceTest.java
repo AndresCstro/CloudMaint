@@ -3,6 +3,9 @@ package com.cloudmaint.incident.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.cloudmaint.incident.dto.UpdateIncidentStatusRequest;
 import com.cloudmaint.incident.client.AssetClient;
 import com.cloudmaint.incident.dto.AssetResponse;
 import com.cloudmaint.incident.dto.CreateIncidentRequest;
@@ -168,5 +172,32 @@ class IncidentServiceTest {
         assertEquals(Severity.MEDIUM, result.getSeverity());
         assertEquals(Priority.HIGH, result.getPriority());
         assertEquals(8, result.getSlaHours());
+    }
+    
+    @Test
+    void shouldUpdateIncidentStatusToResolved() {
+
+        Incident incident = new Incident();
+        incident.setId(1L);
+        incident.setStatus(IncidentStatus.IN_PROGRESS);
+
+        UpdateIncidentStatusRequest request =
+                new UpdateIncidentStatusRequest();
+
+        request.setStatus(IncidentStatus.RESOLVED);
+
+        when(incidentRepository.findById(1L))
+                .thenReturn(Optional.of(incident));
+
+        when(incidentRepository.save(incident))
+                .thenReturn(incident);
+
+        Incident result = incidentService.updateStatus(1L, request);
+
+        assertEquals(IncidentStatus.RESOLVED, result.getStatus());
+        assertNotNull(result.getResolvedAt());
+
+        verify(incidentRepository).findById(1L);
+        verify(incidentRepository).save(incident);
     }
 }

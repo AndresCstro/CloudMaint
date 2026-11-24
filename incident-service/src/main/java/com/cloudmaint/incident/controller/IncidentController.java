@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 
+import com.cloudmaint.incident.dto.UpdateIncidentStatusRequest;
 import com.cloudmaint.incident.dto.CreateIncidentRequest;
 import com.cloudmaint.incident.model.Incident;
 import com.cloudmaint.incident.service.IncidentService;
@@ -55,5 +57,16 @@ public class IncidentController {
         return incidentService.getIncidentById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    
+    // Petición PATCH para modificar estado de una incidencia
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Incident> updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateIncidentStatusRequest request) {
+
+        Incident updatedIncident = incidentService.updateStatus(id, request);
+
+        return ResponseEntity.ok(updatedIncident);
     }
 }

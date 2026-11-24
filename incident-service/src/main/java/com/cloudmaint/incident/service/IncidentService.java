@@ -16,7 +16,10 @@ import com.cloudmaint.incident.model.IncidentStatus;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
+import com.cloudmaint.incident.dto.UpdateIncidentStatusRequest;
+import com.cloudmaint.incident.model.IncidentStatus;
 @Service
 public class IncidentService {
 
@@ -163,5 +166,25 @@ public class IncidentService {
             case HIGH -> 8;
             case CRITICAL -> 2;
         };
+    }
+    
+    // Función para actualizar el estado de una incidencia
+    public Incident updateStatus(
+            Long id,
+            UpdateIncidentStatusRequest request) {
+    	
+    	// Busca el incidente asociado a 'id'
+        Incident incident = incidentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Incident not found"));
+        
+        // Se modifica el estado de la incidencia (a partir del DTO)
+        incident.setStatus(request.getStatus());
+        
+        // Gestionar resolvedAt si es que se resuelve la incidencia
+        if (request.getStatus() == IncidentStatus.RESOLVED) {
+            incident.setResolvedAt(LocalDateTime.now());
+        }
+
+        return incidentRepository.save(incident);
     }
 }
