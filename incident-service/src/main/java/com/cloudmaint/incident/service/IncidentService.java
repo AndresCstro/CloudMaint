@@ -13,13 +13,14 @@ import com.cloudmaint.incident.client.AssetClient;
 import com.cloudmaint.incident.dto.AssetResponse;
 import com.cloudmaint.incident.model.Incident;
 import com.cloudmaint.incident.model.IncidentStatus;
+import com.cloudmaint.incident.model.SlaStatus;
+import com.cloudmaint.incident.dto.UpdateIncidentStatusRequest;
+
 
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDateTime;
 
-import com.cloudmaint.incident.dto.UpdateIncidentStatusRequest;
-import com.cloudmaint.incident.model.IncidentStatus;
+
 @Service
 public class IncidentService {
 
@@ -182,9 +183,28 @@ public class IncidentService {
         
         // Gestionar resolvedAt si es que se resuelve la incidencia
         if (request.getStatus() == IncidentStatus.RESOLVED) {
-            incident.setResolvedAt(LocalDateTime.now());
+            LocalDateTime resolvedAt = LocalDateTime.now();
+
+            incident.setResolvedAt(resolvedAt);
+
+            SlaStatus slaStatus =
+                    calculateSlaStatus(resolvedAt, incident.getDeadline());
+
+            incident.setSlaStatus(slaStatus);
         }
 
         return incidentRepository.save(incident);
+    }
+    
+    // Función para calcular el estado de SLA 
+    private SlaStatus calculateSlaStatus(
+            LocalDateTime resolvedAt,
+            LocalDateTime deadline) {
+
+        if (!resolvedAt.isAfter(deadline)) {
+            return SlaStatus.WITHIN_SLA;
+        }
+
+        return SlaStatus.BREACHED;
     }
 }
