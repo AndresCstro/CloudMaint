@@ -114,6 +114,14 @@ public class Incident {
 	public void setDeadline(LocalDateTime deadline) {
 		this.deadline = deadline;
 	}
+	
+	public LocalDateTime getResolvedAt() {
+	    return resolvedAt;
+	}
+
+	public void setResolvedAt(LocalDateTime resolvedAt) {
+	    this.resolvedAt = resolvedAt;
+	}
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -162,6 +170,9 @@ public class Incident {
 
     @Column(nullable = false)
     private LocalDateTime deadline;
+    
+    // Fecha en la que fue resuelta la incidencia
+    private LocalDateTime resolvedAt;
 
     public Incident() {
     }
