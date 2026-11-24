@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.cloudmaint.asset.model.Asset;
 import com.cloudmaint.asset.service.AssetService;
+import com.cloudmaint.asset.dto.UpdateAssetRequest;
 
 import jakarta.validation.Valid;
 
@@ -44,17 +45,19 @@ public class AssetController {
     @GetMapping("/{id}")
     public ResponseEntity<Asset> getAssetById(@PathVariable Long id) {
 
-        return assetService.getAssetById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Asset asset = assetService.getAssetById(id);
+
+        return ResponseEntity.ok(asset);
     }
     
-    // Petición POST para modificar activo 
+    // Petición PUT (antes POST), para modificar un activo existente
     @PutMapping("/{id}")
-    public Asset updateAsset(
+    public ResponseEntity<Asset> updateAsset(
             @PathVariable Long id,
-            @Valid @RequestBody Asset asset) {
+            @Valid @RequestBody UpdateAssetRequest request) {
 
-        return assetService.updateAsset(id, asset);
+        Asset updatedAsset = assetService.updateAsset(id, request);
+
+        return ResponseEntity.ok(updatedAsset);
     }
 }

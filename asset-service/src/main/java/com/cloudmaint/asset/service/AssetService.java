@@ -1,14 +1,14 @@
 package com.cloudmaint.asset.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cloudmaint.asset.dto.UpdateAssetRequest;
 import com.cloudmaint.asset.model.Asset;
 import com.cloudmaint.asset.repository.AssetRepository;
-
+import com.cloudmaint.asset.exception.AssetNotFoundException;
 @Service
 public class AssetService {
 
@@ -30,25 +30,26 @@ public class AssetService {
         return assetRepository.findAll();
     }
     
-    // Obtener un activo mediante su id --> puede ser null, de ahí el Optional
-    public Optional<Asset> getAssetById(Long id) {
-        return assetRepository.findById(id);
+    // Obtener un activo mediante su id --> emplea la excepción específica
+    public Asset getAssetById(Long id) {
+        return assetRepository.findById(id)
+                .orElseThrow(() -> new AssetNotFoundException(id));
     }
+    
     
     // Dirty checking: Transactional permite que Hibernate detecte el cambio en el asset y haga un UPDATE automático
     // Actualizar activo existente (mejora posterior: emplear un DTO)
     @Transactional
-    public Asset updateAsset(Long id, Asset updatedAsset) {
+    public Asset updateAsset(Long id, UpdateAssetRequest request) {
 
         Asset existingAsset = assetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Asset not found"));
+        		.orElseThrow(() -> new AssetNotFoundException(id));
+        
+        existingAsset.setName(request.getName());
+        existingAsset.setType(request.getType());
+        existingAsset.setLocation(request.getLocation());
+        existingAsset.setCriticality(request.getCriticality());
 
-        existingAsset.setName(updatedAsset.getName());
-        existingAsset.setType(updatedAsset.getType());
-        existingAsset.setLocation(updatedAsset.getLocation());
-        existingAsset.setCriticality(updatedAsset.getCriticality());
-        existingAsset.setStatus(updatedAsset.getStatus());
-
-        return existingAsset;
+        return assetRepository.save(existingAsset);
     }
 }
