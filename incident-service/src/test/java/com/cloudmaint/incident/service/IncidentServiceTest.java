@@ -174,6 +174,14 @@ class IncidentServiceTest {
         assertEquals(8, result.getSlaHours());
     }
     
+    /*
+     * Comprueba que una incidencia puede actualizar su estado a RESOLVED.
+     *
+     * Cuando la incidencia pasa a RESOLVED, el servicio debe:
+     * - actualizar correctamente el estado;
+     * - asignar automáticamente la fecha y hora de resolución;
+     * - persistir los cambios mediante IncidentRepository.
+     */
     @Test
     void shouldUpdateIncidentStatusToResolved() {
 
