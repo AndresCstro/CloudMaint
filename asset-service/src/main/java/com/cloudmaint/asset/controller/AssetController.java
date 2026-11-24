@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.cloudmaint.asset.model.Asset;
 import com.cloudmaint.asset.service.AssetService;
 
 import jakarta.validation.Valid;
 
+@CrossOrigin(origins = "http://localhost:8082")
 @RestController
 @RequestMapping("/api/assets")
 public class AssetController {
